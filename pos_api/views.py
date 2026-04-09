@@ -58,25 +58,35 @@ class SubmitResult(APIView):
             return Response({"error": "Invalid command"}, status=404)
 
         status_text = request.data.get("status")
-        cmd.result_code = request.data.get("result_code", "")
+        result_code = request.data.get("result_code", "")
+
+        cmd.result_code = result_code
         cmd.result_text = request.data.get("result_text", "")
         cmd.executed_at = now()
 
+        # ============================================================
+        # ✅ SUCCESSFUL EXECUTION
+        # ============================================================
         if status_text == "DONE":
-            # The POS successfully executed the command.
             cmd.status = "DONE"
+
         else:
-            # A failed command may be retried unless it is a CHANGE command with a pending CANCEL.
-            cancel_pending = POSCommand.objects.filter(
-                pos=pos,
-                command="CANCEL",
-                status__in=["PENDING", "LOCKED"]
-            ).exists()
-            if cmd.attempts >= MAX_ATTEMPTS or (cmd.command == "CHANGE" and cancel_pending):
-                # Stop retries and mark the command as dead.
+            # ============================================================
+            # ✅ IMPORTANT FIX:
+            # If CHANGE was cancelled by the machine (result_code == "1"),
+            # this is a terminal state and must NEVER be retried.
+            # ============================================================
+            if cmd.command == "CHANGE" and result_code == "1":
                 cmd.status = "DEAD"
+                cmd.result_text = "Transaction cancelled by user"
+
+            # ============================================================
+            # ✅ Normal retry logic for all other failures
+            # ============================================================
+            elif cmd.attempts >= MAX_ATTEMPTS:
+                cmd.status = "DEAD"
+
             else:
-                # Allow the command to re-enter the queue for another attempt.
                 cmd.status = "PENDING"
 
         cmd.save()
