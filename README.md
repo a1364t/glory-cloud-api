@@ -27,23 +27,31 @@ This backend is intended to integrate with the Glory POS application by exchangi
 
 1. Clone this repository.
 2. Create and activate a Python virtual environment.
+
+   ```powershell
+   python -m venv venv
+   .\venv\Scripts\Activate.ps1
+   ```
+
 3. Install dependencies:
 
-```bash
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-4. Run Django migrations:
+4. Make sure the `.env` file is present in the project root and contains `DJANGO_SECRET_KEY`.
 
-```bash
-python manage.py migrate
-```
+5. Run Django migrations:
 
-5. Start the server:
+   ```bash
+   python manage.py migrate
+   ```
 
-```bash
-python manage.py runserver
-```
+6. Start the server:
+
+   ```bash
+   python manage.py runserver
+   ```
 
 ## API Endpoints
 
