@@ -6,6 +6,8 @@ This repository provides a simple cloud backend for a single POS terminal integr
 
 The service supports a command queue for a single POS terminal and includes special handling for change/cancel workflows.
 
+The project has deployed on pythonanywhere [HERE](https://talaeia.pythonanywhere.com/api/fetch/)
+
 ## Features
 
 - Single POS integration with API-based authentication
